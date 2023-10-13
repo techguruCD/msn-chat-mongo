@@ -77,7 +77,7 @@ const fontFamilies = [
 const MessageItem = ({ message, mine }) => {
     return <div className='message-item'>
         <div className='message-from'>
-            {mine ? 'You' : message.sendUser.name} :
+            {mine ? 'You' : message.sender.name} :
         </div>
         <div className='message-content' dangerouslySetInnerHTML={{ __html: message.content }}></div>
     </div>
@@ -106,8 +106,8 @@ const Home = () => {
     }
     const onSend = (e) => {
         e.preventDefault()
-        if (target.id === undefined) return;
-        dispatch(sendMessage({ content, receiver: target.id, mode: target.mode }))
+        if (target._id === undefined) return;
+        dispatch(sendMessage({ content, receiver: target._id, mode: target.mode }))
 
         setDefaultValue(' ')
         setTimeout(() => setDefaultValue(''), 1)
@@ -115,7 +115,7 @@ const Home = () => {
     }
     const sendNudge = (e) => {
         e.preventDefault()
-        dispatch(sendMessage({ content: 'Nudge sent', receiver: target.id, type: 1, mode: target.mode}))
+        dispatch(sendMessage({ content: 'Nudge sent', receiver: target._id, type: 1, mode: target.mode}))
     }
     const onAvatarChange = (e) => {
         if (e.target.files[0])
@@ -144,10 +144,10 @@ const Home = () => {
                             <span>To: {target.name}</span>
                         </div>
                         <div className='to-message-history' ref={messageListRef}>
-                            {messages.map(message => <MessageItem key={message.id} message={message} mine={message.sender == user.id} />)}
+                            {messages.map(message => <MessageItem key={message._id} message={message} mine={message.sender._id == user.id} />)}
                         </div>
                     </div>
-                    <Avatar imageURL={target.mode==1?'/avatar/icons8-multiple-users-80.png':(target.id?(target.avatar?SERVER_URL + target.avatar:'/avatar/online-avatar-online.png'):'/avatar/msn-icon.png')} onClick={handleShow} />
+                    <Avatar imageURL={target.mode==1?'/avatar/icons8-multiple-users-80.png':(target._id?(target.avatar?SERVER_URL + target.avatar:'/avatar/online-avatar-online.png'):'/avatar/msn-icon.png')} onClick={handleShow} />
                 </div>
                 <div className='from-container d-flex'>
                     <div className='from-message-area'>

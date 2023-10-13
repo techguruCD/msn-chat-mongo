@@ -14,7 +14,7 @@ export const chatSlice = createSlice({
             state.messages = action.payload
         },
         addMessage: (state, action) => {
-            if (state.contacts.findIndex(contact => contact.id == action.payload.id) < 0)
+            if (state.contacts.findIndex(contact => contact._id == action.payload._id) < 0)
                 state.messages = [...state.messages, action.payload]
         },
         setContacts: (state, action) => {
@@ -24,7 +24,7 @@ export const chatSlice = createSlice({
             state.contacts = [...state.contacts, action.payload]
         },
         updateContact: (state, action) => {
-            const index = state.contacts.findIndex(contact => contact.id == action.payload.id)
+            const index = state.contacts.findIndex(contact => contact._id == action.payload._id)
             if (index < 0)
                 state.contacts = [...state.contacts, action.payload]
             else {

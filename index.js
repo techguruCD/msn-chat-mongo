@@ -7,7 +7,7 @@ const cors = require('cors')
 const path = require('path')
 const passport = require('passport')
 const routes = require('./routes')
-const sequelize = require('./sequelize')
+const mongoose = require('mongoose')
 
 const ioHandler = require('./ioHandler')
 
@@ -17,7 +17,7 @@ const io = require('socket.io')(httpServer, {
     transports: ["websocket"]
 })
 
-const PORT = 3000;
+const PORT = 5000;
 
 app.use(fileUpload())
 app.use(passport.initialize())
@@ -31,9 +31,11 @@ require('./passport')(passport)
 
 io.on('connection', ioHandler.onConnect)
 
-sequelize.authenticate().then(() => {
-    console.log('Database connection OK!');
-    httpServer.listen(PORT)
-}).catch(error => {
-    console.log('Unable to connect to the database: ', error)
-})
+mongoose.connect('mongodb://127.0.0.1:27017/msn')
+    .then(() => {
+        console.log('Database connection OK!');
+        httpServer.listen(PORT)
+    })
+    .catch(err => {
+        console.log('Unaebl to connect to the database: ', err)
+    })

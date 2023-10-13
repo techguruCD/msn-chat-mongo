@@ -54,8 +54,8 @@ function ContactModal({ show, setModalShow }) {
             <Modal.Body>
                 <div className='contact-list'>
                     <ListGroup className='px-1' as="ul">
-                        <ListGroup.Item as="li" action active={selectedTarget.id == -1} className='d-flex align-items-center public-chat-item'
-                            onClick={() => setSelectedTarget({ id: -1, mode: 1, name: 'Public Chat' })}>
+                        <ListGroup.Item as="li" action active={selectedTarget._id == -1} className='d-flex align-items-center public-chat-item'
+                            onClick={() => setSelectedTarget({ _id: -1, mode: 1, name: 'Public Chat' })}>
                             <img src='/avatar/icons8-multiple-users-80.png' />
                             Public Chat
                         </ListGroup.Item>
@@ -68,7 +68,7 @@ function ContactModal({ show, setModalShow }) {
                         <ListGroup as="ul" style={{ display: onlineCollapseed ? 'none' : 'flex' }}>
                             {
                                 contacts.filter(contact => contact.online).map(contact => {
-                                    return <ListGroup.Item as="li" action active={selectedTarget.id == contact.id} key={contact.id} className='d-flex align-items-center' onClick={() => setSelectedTarget(contact)}>
+                                    return <ListGroup.Item as="li" action active={selectedTarget._id == contact._id} key={contact._id} className='d-flex align-items-center' onClick={() => setSelectedTarget(contact)}>
                                         <img src='/online-avatar-online.png' />
                                         {contact.name}
                                     </ListGroup.Item>
@@ -84,7 +84,7 @@ function ContactModal({ show, setModalShow }) {
                         <ListGroup as="ul" style={{ display: offlineCollapseed ? 'none' : 'flex' }}>
                             {
                                 contacts.filter(contact => !contact.online).map(contact => {
-                                    return <ListGroup.Item as="li" action active={selectedTarget.id == contact.id} key={contact.id} className='d-flex align-items-center' onClick={() => setSelectedTarget(contact)}>
+                                    return <ListGroup.Item as="li" action active={selectedTarget._id == contact._id} key={contact._id} className='d-flex align-items-center' onClick={() => setSelectedTarget(contact)}>
                                         <div className='me-auto'>
                                             <img src='/online-avatar-offline.png' /> {contact.name}
                                         </div>

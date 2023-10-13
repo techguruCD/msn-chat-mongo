@@ -5,11 +5,9 @@ const path = require('path')
 const fs = require('fs')
 
 const ioHandler = require('../ioHandler')
-const { models } = require('../sequelize')
+const User = require('../schema/User')
 const validateRegisterInput = require('../validation/register')
 const validateLoginInput = require('../validation/login')
-
-const { User } = models
 
 exports.register = (req, res) => {
     const { errors, isValid } = validateRegisterInput(req.body)
@@ -21,20 +19,29 @@ exports.register = (req, res) => {
             errors
         })
 
-    User.findOne({ where: { name } }).then(user => {
-        if (user)
-            return res.json({
-                status: 1,
-                errors: { name: "Name is already in use" }
-            })
-
-        User.create({
-            name, password
-        }).then(user => {
-            return res.json({
-                status: 0,
-                user
-            })
+    User.findOne({ name })
+        .then(user => {
+            if (user)
+                return res.json({
+                    status: 1,
+                    errors: { name: "Name is already in use" }
+                })
+            new User({ name, password }).save()
+                .then(user => {
+                    return res.json({
+                        status: 0,
+                        user
+                    })
+                }).catch(err => {
+                    console.log(err)
+                    return res.json({
+                        status: 1,
+                        errors: { name: "Please try again later" },
+                        message: {
+                            warning: "Please try again later"
+                        }
+                    })
+                })
         }).catch(err => {
             console.log(err)
             return res.json({
@@ -45,16 +52,6 @@ exports.register = (req, res) => {
                 }
             })
         })
-    }).catch(err => {
-        console.log(err)
-        return res.json({
-            status: 1,
-            errors: { name: "Please try again later" },
-            message: {
-                warning: "Please try again later"
-            }
-        })
-    })
 }
 
 exports.login = (req, res) => {
@@ -66,44 +63,43 @@ exports.login = (req, res) => {
             status: 1,
             errors
         })
+    User.findOne({ name, password })
+        .then(user => {
+            if (!user)
+                return res.json({
+                    status: 1,
+                    errors: { name: "Invalid User Info" },
+                    message: {
+                        warning: "Invalid User Info"
+                    }
+                })
 
-    User.findOne({ where: { name, password } }).then(user => {
-        if (!user)
+            const payLoad = { _id: user._id, name: user.name, avatar: user.avatar }
+            jwt.sign(
+                payLoad,
+                process.env.SECRET_OR_KEY,
+                { expiresIn: 360000 },
+                (err, token) => {
+                    return res.json({
+                        status: 0,
+                        user,
+                        token: 'Bearer ' + token
+                    })
+                })
+        }).catch(err => {
+            console.log(err)
             return res.json({
                 status: 1,
-                errors: { name: "Invalid User Info" },
+                errors: { name: "Please try again later" },
                 message: {
-                    warning: "Invalid User Info"
+                    warning: "Please try again later"
                 }
             })
-
-        const payLoad = { id: user.id, name: user.name, name: user.name, avatar: user.avatar }
-        jwt.sign(
-            payLoad,
-            process.env.SECRET_OR_KEY,
-            { expiresIn: 360000 },
-            (err, token) => {
-                return res.json({
-                    status: 0,
-                    user,
-                    token: 'Bearer ' + token
-                })
-            })
-    }).catch(err => {
-        console.log(err)
-        return res.json({
-            status: 1,
-            errors: { name: "Please try again later" },
-            message: {
-                warning: "Please try again later"
-            }
         })
-    })
 }
 
 exports.updateAvatar = (req, res) => {
-
-    User.findOne({ where: { id: req.user.id } })
+    User.findOne({ _id: req.user._id })
         .then(user => {
             if (!user)
                 return res.json({
